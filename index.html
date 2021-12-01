@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat cùng roniejisa</title>
+</head>
+<body>
+    <h1>App chat siêu khủng</h1>
+    <ul id="message">
+        
+    </ul>
+    <form action="" id="chat-form">
+        <input type="text" id="content">
+        <button type="submit" id="send-chat">Gửi</button>
+    </form>
+</body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const name = prompt('Nhập tên vào đê');
+        const chatForm = document.querySelector('#chat-form')
+        const content = document.querySelector('#content');
+        if(chatForm){
+            chatForm.onsubmit = (e) => {
+                e.preventDefault();
+                const message = content.value;
+                socket.emit('on-chat', {message,name})
+                content.value = '';
+            }
+        }
+
+        const messageContent = document.querySelector('#message')
+        socket.on('user-chat', ({message,name})=> {
+            const chatItem = document.createElement('li');
+            chatItem.textContent = name + ' - ' +message
+            messageContent.append(chatItem);
+        })
+
+        socket.on('list-old', (data)=> {
+            var messages = data.map(({message,name}) => {
+                return `<li>${name} - ${message}</li>`
+            }).join('');
+            messageContent.innerHTML = messages;
+        })
+    </script>
+</html>
